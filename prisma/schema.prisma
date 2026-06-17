@@ -24,7 +24,7 @@ enum FieldType {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  password      String
+  password      String?
   role          Role      @default(EDITOR)
   createdAt     DateTime  @default(now())
   accounts      Account[]
@@ -108,6 +108,8 @@ model BlogPost {
   site            Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@unique([siteId, slug])
+  @@index([siteId, status])
+  @@index([siteId, publishedAt])
 }
 
 model SiteSEO {

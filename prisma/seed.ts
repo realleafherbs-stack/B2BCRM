@@ -12,7 +12,7 @@ async function main() {
     update: {},
     create: { email: 'admin@crm.com', password, role: 'ADMIN' },
   })
-  console.log('Seeded admin user: admin@crm.com / admin123')
+  console.log('Seeded admin user: admin@crm.com')
 }
 
 main().finally(() => prisma.$disconnect())
