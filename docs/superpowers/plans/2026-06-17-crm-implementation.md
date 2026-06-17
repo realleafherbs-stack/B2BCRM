@@ -4,9 +4,11 @@
 
 **Goal:** Build a Next.js CRM that lets a non-technical client manage blog posts, editable text fields, and SEO metadata across multiple websites, with a public API those websites consume.
 
-**Architecture:** Single Next.js App Router app on Vercel. Editors use the CRM UI to manage content stored in PostgreSQL (Neon). Client Next.js sites fetch content from the CRM's public API routes using an API key, with ISR for fast page loads and near-instant content updates on publish.
+**Architecture:** Single Next.js App Router app on Vercel. Editors use the CRM UI to manage content stored in PostgreSQL (Supabase). Client Next.js sites fetch content from the CRM's public API routes using an API key, with ISR for fast page loads and near-instant content updates on publish.
 
-**Tech Stack:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Prisma, Neon (PostgreSQL), NextAuth.js v5, TipTap, Cloudinary, Vitest
+**Tech Stack:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Prisma, Supabase (PostgreSQL), NextAuth.js v5, TipTap, Cloudinary, Vitest
+
+**Supabase connection:** `prisma/schema.prisma` uses two env vars — `DATABASE_URL` (port 6543, pgBouncer/transaction mode, for runtime) and `DIRECT_URL` (port 5432, for Prisma CLI migrations/push). Both from Supabase dashboard → Settings → Database → Connection string.
 
 ---
 
