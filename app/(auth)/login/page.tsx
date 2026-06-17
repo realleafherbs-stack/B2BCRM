@@ -19,7 +19,9 @@ export default function LoginPage() {
         password: form.get('password'),
         redirect: false,
       })
-      if (!result?.ok) {
+      if (result === undefined || result === null) {
+        setError('Something went wrong. Please try again.')
+      } else if (!result.ok) {
         setError('Invalid email or password')
       } else {
         router.push('/dashboard')

@@ -1,18 +1,8 @@
 import type { NextAuthConfig } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
 
 export const authConfig: NextAuthConfig = {
   pages: { signIn: '/login' },
-  providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      authorize: async () => null,
-    }),
-  ],
+  providers: [],
   callbacks: {
     jwt({ token, user }) {
       if (user) {
