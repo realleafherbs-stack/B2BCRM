@@ -4,7 +4,7 @@
 Multi-tenant CRM admin panel. Each "site" (e.g. xvape) has its own slug, apiKey, products, orders, blogs, content fields, SEO, and settings. Client storefronts read data from CRM via `x-api-key` authenticated API routes. CRM runs on `localhost:3000` in dev.
 
 ## CRM Deploy Note
-Only `AUTH_URL` changes when deploying CRM to production (set to the live Vercel URL). Everything else in `.env` stays the same.
+Only `AUTH_URL` changes when deploying CRM to production — set to `https://www.ducks.co.il`. Everything else in `.env` stays the same.
 
 ## Payper Integration — How Selling Price Works
 - **Selling price comes from Payper's webhook PUSH only** — Payper pushes a `price` field (selling price) with every product update.

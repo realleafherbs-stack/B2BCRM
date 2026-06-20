@@ -22,7 +22,7 @@ Also set the **Revalidate URL** to the site's live URL (e.g. `http://localhost:3
 Add the following variables to the Next.js site:
 
 ```env
-CRM_URL=http://localhost:3000          # URL where B2BCRM is running
+CRM_URL=https://www.ducks.co.il       # URL where B2BCRM is running (localhost:3000 in dev)
 CRM_API_KEY=<api-key-from-crm>         # Copied from CRM → Sites → your site
 CRM_SITE_SLUG=myshop                   # Must match the slug set in step 1
 REVALIDATE_SECRET=<secret-from-crm>   # Copied from CRM → Sites → your site
