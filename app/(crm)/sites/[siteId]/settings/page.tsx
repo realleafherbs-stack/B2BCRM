@@ -4,7 +4,10 @@ import { PayperSettingsClient } from '@/components/payper-settings-client'
 
 export default async function SettingsPage({ params }: { params: Promise<{ siteId: string }> }) {
   const { siteId } = await params
-  const site = await prisma.site.findUnique({ where: { id: siteId } })
+  const site = await prisma.site.findUnique({
+    where: { id: siteId },
+    select: { id: true, name: true, slug: true, payperCategories: true, payperWebhookSecret: true },
+  })
   if (!site) notFound()
 
   const crmUrl = process.env.AUTH_URL || process.env.NEXTAUTH_URL || 'https://www.ducks.co.il'

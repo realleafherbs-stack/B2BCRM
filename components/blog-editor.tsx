@@ -86,7 +86,7 @@ export function BlogEditor({ defaultValue }: { defaultValue?: string }) {
     }),
   })
 
-  function setImageAlign(align: 'left' | 'right' | null) {
+  function setImageAlign(align: 'left' | 'center' | 'right' | null) {
     editor?.chain().focus().updateAttributes('image', { align }).run()
   }
 

@@ -50,7 +50,7 @@ export default async function ContentPage({
           name={field.key}
           label={field.label}
           defaultValue={field.value}
-          siteSlug={site.slug}
+          siteSlug={site!.slug}
         />
       )
     }

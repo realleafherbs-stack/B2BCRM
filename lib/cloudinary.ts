@@ -18,7 +18,7 @@ export async function listImages(siteSlug: string) {
       name: f.name,
       url: supabase.storage.from(BUCKET).getPublicUrl(`${siteSlug}/${f.name}`).data.publicUrl,
       size: f.metadata?.size as number | undefined,
-      createdAt: f.created_at,
+      createdAt: f.created_at ?? undefined,
     }))
 }
 

@@ -37,7 +37,7 @@ export default async function BlogsPage({
       )}
 
       <div className="flex flex-col gap-3">
-        {blogs.map((blog) => (
+        {blogs.map((blog: typeof blogs[number]) => (
           <div
             key={blog.id}
             className="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl px-5 py-4"
