@@ -170,7 +170,7 @@ export function ProductsClient({
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Products — {siteName}</h1>
+        <h1 className="text-2xl font-bold text-white">Products — {siteName} <span className="text-slate-500 text-lg font-normal">({products.length})</span></h1>
         <div className="flex items-center gap-3">
           {syncResult && <span className="text-sm text-slate-400">{syncResult}</span>}
           <button
