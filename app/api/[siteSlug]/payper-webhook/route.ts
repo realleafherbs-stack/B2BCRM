@@ -17,6 +17,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sit
   if (!site) return NextResponse.json({ error: 'Site not found' }, { status: 404 })
 
   const body = await req.json()
+  console.log('[payper-webhook] payload:', JSON.stringify(body))
   const { identifier, product_sku, product_name, price, cost, total_available_quantity, category_name, image_url, is_active } = body
 
   // Validate identifier
