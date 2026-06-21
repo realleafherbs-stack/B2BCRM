@@ -74,26 +74,31 @@ export async function deleteProduct(id: string, siteId: string) {
   revalidatePath(`/sites/${siteId}/products`)
 }
 
-export async function syncPayperProducts(siteId: string): Promise<{ synced: number; errors: string[] }> {
+export async function syncPayperProducts(siteId: string): Promise<{ synced: number; errors: string[]; apiError?: string }> {
   const session = await auth()
-  if (!session) throw new Error('Unauthorized')
+  if (!session) return { synced: 0, errors: ['Unauthorized'] }
 
   const site = await prisma.site.findUnique({ where: { id: siteId } })
-  if (!site) throw new Error('Site not found')
+  if (!site) return { synced: 0, errors: ['Site not found'] }
 
   const apiKey  = process.env.PAYPER_API_KEY
   const account = process.env.PAYPER_ACCOUNT
-  if (!apiKey || !account) throw new Error('Payper credentials not configured')
+  if (!apiKey || !account) return { synced: 0, errors: [], apiError: 'Payper credentials not configured' }
 
   const allowedCategories = site.payperCategories ?? []
 
-  const res = await fetch('https://api.payper.co.il/get_inventories', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ api_key: apiKey, account }),
-  })
+  let res: Response
+  try {
+    res = await fetch('https://api.payper.co.il/get_inventories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey, account }),
+    })
+  } catch (e: any) {
+    return { synced: 0, errors: [], apiError: `Network error: ${e.message}` }
+  }
 
-  if (!res.ok) throw new Error(`Payper API error: ${res.status}`)
+  if (!res.ok) return { synced: 0, errors: [], apiError: `Payper API error: ${res.status}` }
   const data = await res.json()
   const items: any[] = Array.isArray(data) ? data : data.products ?? data.items ?? []
 

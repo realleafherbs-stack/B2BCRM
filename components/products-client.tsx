@@ -156,7 +156,11 @@ export function ProductsClient({
     setSyncResult(null)
     try {
       const result = await syncPayperProducts(siteId)
-      setSyncResult(`Synced ${result.synced} products${result.errors.length ? ` (${result.errors.length} errors)` : ''}`)
+      if (result.apiError) {
+        setSyncResult(`Error: ${result.apiError}`)
+      } else {
+        setSyncResult(`Synced ${result.synced} products${result.errors.length ? ` (${result.errors.length} errors)` : ''}`)
+      }
     } catch (e: any) {
       setSyncResult(`Error: ${e.message}`)
     }
