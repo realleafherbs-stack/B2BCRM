@@ -82,6 +82,22 @@ model Site {
   orders               Order[]
   coupons              Coupon[]
   products             Product[]
+  categories           Category[]
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  siteId    String
+  name      String
+  slug      String
+  order     Int       @default(0)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  products  Product[]
+
+  @@unique([siteId, slug])
+  @@index([siteId])
 }
 
 model Order {
@@ -123,7 +139,7 @@ model Coupon {
 }
 
 model Product {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   siteId          String
   handle          String
   name            String
@@ -132,19 +148,22 @@ model Product {
   badge           String?
   image           String?
   payperSku       String?
-  cardFeatures    String[] @default([])
-  features        String[] @default([])
-  active          Boolean  @default(true)
-  order           Int      @default(0)
+  cardFeatures    String[]  @default([])
+  features        String[]  @default([])
+  active          Boolean   @default(true)
+  order           Int       @default(0)
   metaTitle       String?
   metaDescription String?
   ogImage         String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  site            Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  categoryId      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  site            Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@unique([siteId, handle])
   @@index([siteId])
+  @@index([categoryId])
 }
 
 model FormSubmission {

@@ -14,10 +14,18 @@ export default async function ProductsPage({
   })
   if (!site) notFound()
 
-  const products = await prisma.product.findMany({
-    where: { siteId },
-    orderBy: { order: 'asc' },
-  })
+  const [products, categories] = await Promise.all([
+    prisma.product.findMany({
+      where: { siteId },
+      orderBy: { order: 'asc' },
+      include: { category: { select: { id: true, name: true } } },
+    }),
+    prisma.category.findMany({
+      where: { siteId, active: true },
+      orderBy: { order: 'asc' },
+      select: { id: true, name: true },
+    }),
+  ])
 
   return (
     <ProductsClient
@@ -25,6 +33,7 @@ export default async function ProductsPage({
       siteId={siteId}
       siteSlug={site.slug}
       siteName={site.name}
+      categories={categories}
     />
   )
 }

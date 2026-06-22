@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { createProduct, updateProduct, deleteProduct, toggleProductActive, clearAllProducts, reorderProducts } from '@/app/actions/products'
 import { ImageUpload } from '@/components/image-upload'
 
+type Category = { id: string; name: string }
+
 type Product = {
   id: string
   handle: string
@@ -20,16 +22,20 @@ type Product = {
   metaTitle: string | null
   metaDescription: string | null
   ogImage: string | null
+  categoryId: string | null
+  category: Category | null
 }
 
 function ProductRow({
   product,
   siteId,
   siteSlug,
+  categories,
 }: {
   product: Product
   siteId: string
   siteSlug: string
+  categories: Category[]
 }) {
   const [editing, setEditing] = useState(false)
   const [pending, startTransition] = useTransition()
@@ -53,6 +59,13 @@ function ProductRow({
             <Field label="Handle (URL slug)" name="handle" defaultValue={product.handle} />
             <Field label="Price (₪)" name="price" type="number" defaultValue={String(product.price)} />
             <Field label="Badge (optional)" name="badge" defaultValue={product.badge ?? ''} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm text-slate-400">Category</label>
+            <select name="categoryId" defaultValue={product.categoryId ?? ''} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500">
+              <option value="">— No category —</option>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
           </div>
           <Field label="Description" name="description" defaultValue={product.description ?? ''} />
           <Field label="Payper SKU / makat (optional)" name="payperSku" defaultValue={product.payperSku ?? ''} />
@@ -104,6 +117,7 @@ function ProductRow({
           <span>₪{product.price}</span>
           <span className="text-slate-600">/shop/{product.handle}</span>
           {product.payperSku && <span className="text-slate-500">SKU: {product.payperSku}</span>}
+          {product.category && <span className="text-indigo-400">{product.category.name}</span>}
         </div>
       </div>
       <div className="flex gap-2 shrink-0">
@@ -151,11 +165,13 @@ export function ProductsClient({
   siteId,
   siteSlug,
   siteName,
+  categories,
 }: {
   products: Product[]
   siteId: string
   siteSlug: string
   siteName: string
+  categories: Category[]
 }) {
   const [items, setItems] = useState(initialProducts)
   const [creating, setCreating] = useState(false)
@@ -208,7 +224,7 @@ export function ProductsClient({
             >
               <div className="text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing px-1 text-lg select-none">⠿</div>
               <div className="flex-1">
-                <ProductRow product={p} siteId={siteId} siteSlug={siteSlug} />
+                <ProductRow product={p} siteId={siteId} siteSlug={siteSlug} categories={categories} />
               </div>
             </div>
           ))}
@@ -233,6 +249,13 @@ export function ProductsClient({
               <Field label="Handle (URL slug, auto if blank)" name="handle" defaultValue="" />
               <Field label="Price (₪)" name="price" type="number" defaultValue="" />
               <Field label="Badge (optional)" name="badge" defaultValue="" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-slate-400">Category</label>
+              <select name="categoryId" defaultValue="" className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500">
+                <option value="">— No category —</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
             </div>
             <Field label="Description" name="description" defaultValue="" />
             <Field label="Payper SKU / makat (optional)" name="payperSku" defaultValue="" />

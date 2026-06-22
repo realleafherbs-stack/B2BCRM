@@ -25,11 +25,12 @@ export async function createProduct(formData: FormData) {
   const payperSku   = (formData.get('payperSku') as string) || null
   const cardFeatures = parseFeatures(formData.get('cardFeatures') as string ?? '')
   const features    = parseFeatures(formData.get('features') as string ?? '')
+  const categoryId  = (formData.get('categoryId') as string) || null
 
   const count = await prisma.product.count({ where: { siteId } })
 
   await prisma.product.create({
-    data: { siteId, name, handle, price, description, badge, image, payperSku, cardFeatures, features, order: count },
+    data: { siteId, name, handle, price, description, badge, image, payperSku, cardFeatures, features, categoryId, order: count },
   })
 
   revalidatePath(`/sites/${siteId}/products`)
@@ -54,10 +55,11 @@ export async function updateProduct(formData: FormData) {
   const metaTitle       = (formData.get('metaTitle') as string) || null
   const metaDescription = (formData.get('metaDescription') as string) || null
   const ogImage         = (formData.get('ogImage') as string) || null
+  const categoryId      = (formData.get('categoryId') as string) || null
 
   await prisma.product.update({
     where: { id },
-    data: { name, handle, price, description, badge, image, payperSku, cardFeatures, features, active, metaTitle, metaDescription, ogImage },
+    data: { name, handle, price, description, badge, image, payperSku, cardFeatures, features, active, metaTitle, metaDescription, ogImage, categoryId },
   })
 
   revalidatePath(`/sites/${siteId}/products`)

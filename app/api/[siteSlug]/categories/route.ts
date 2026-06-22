@@ -10,29 +10,13 @@ export async function GET(
   const site = await prisma.site.findUnique({ where: { slug: siteSlug } })
   if (!site) return NextResponse.json({ error: 'Site not found' }, { status: 404 })
 
-  const products = await prisma.product.findMany({
+  const categories = await prisma.category.findMany({
     where: { siteId: site.id, active: true },
     orderBy: { order: 'asc' },
-    select: {
-      id: true,
-      handle: true,
-      name: true,
-      price: true,
-      description: true,
-      badge: true,
-      image: true,
-      payperSku: true,
-      cardFeatures: true,
-      features: true,
-      metaTitle: true,
-      metaDescription: true,
-      ogImage: true,
-      categoryId: true,
-      category: { select: { id: true, name: true, slug: true } },
-    },
+    select: { id: true, name: true, slug: true },
   })
 
-  return NextResponse.json(products, {
+  return NextResponse.json(categories, {
     headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
   })
 }
