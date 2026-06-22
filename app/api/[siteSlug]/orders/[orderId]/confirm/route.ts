@@ -52,13 +52,16 @@ export async function POST(
         document_rounded: 'false',
         send_by_mail: 'true',
         order_id: orderId,
-        invoice_lines: items.map((item) => ({
-          description: item.name,
-          quantity: item.qty,
-          price_per_unit: item.price,
-          include_vat: 'true',
-          ...(item.variantId ? { catalog_id: item.variantId } : {}),
-        })),
+        invoice_lines: [
+          ...items.map((item) => ({
+            description: item.name,
+            quantity: item.qty,
+            price_per_unit: item.price,
+            include_vat: 'true',
+            ...(item.variantId ? { catalog_id: item.variantId } : {}),
+          })),
+          ...(order.shipping > 0 ? [{ description: 'דמי משלוח', quantity: 1, price_per_unit: order.shipping, include_vat: 'true' }] : []),
+        ],
         receipt_lines: [{ payment_type: 'Cc', date: dateStr, amount: order.total }],
       }),
     })
