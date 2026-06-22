@@ -4,7 +4,8 @@ import { auth } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 
 function toSlug(name: string) {
-  return name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  const ascii = name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  return ascii || `cat-${Date.now()}`
 }
 
 export async function createCategory(formData: FormData) {
