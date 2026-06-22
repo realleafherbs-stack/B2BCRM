@@ -32,7 +32,10 @@ export async function GET(
     },
   })
 
-  return NextResponse.json(products, {
+  return NextResponse.json(products.map(p => ({
+    ...p,
+    category: p.category ? { ...p.category, slug: p.category.slug || p.category.id } : null,
+  })), {
     headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
   })
 }

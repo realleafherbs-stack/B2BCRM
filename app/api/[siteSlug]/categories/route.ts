@@ -16,7 +16,7 @@ export async function GET(
     select: { id: true, name: true, slug: true },
   })
 
-  return NextResponse.json(categories, {
+  return NextResponse.json(categories.map(c => ({ ...c, slug: c.slug || c.id })), {
     headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
   })
 }
