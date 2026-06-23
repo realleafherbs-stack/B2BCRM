@@ -41,7 +41,7 @@ export async function POST(
       body: JSON.stringify({
         api_user: process.env.PAYPER_ACCOUNT,
         woocommerce: '1',
-        source: 'xvape',
+        source: siteSlug,
         casual_customer: '1',
         customer_mail: order.customerEmail,
         customer_name: order.customerName,
