@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS })
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ siteSlug: string }> }
@@ -20,7 +30,7 @@ export async function GET(
   })
 
   return NextResponse.json(reviews, {
-    headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },
+    headers: { ...CORS, 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },
   })
 }
 
@@ -52,5 +62,5 @@ export async function POST(
     select: { id: true, name: true, rating: true, text: true, createdAt: true },
   })
 
-  return NextResponse.json(review, { status: 201 })
+  return NextResponse.json(review, { status: 201, headers: CORS })
 }
