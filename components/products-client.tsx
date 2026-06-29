@@ -302,13 +302,13 @@ function FullFeaturesEditor({ name, defaultValue }: { name: string; defaultValue
       <input type="hidden" name={name} value={serialized} />
       <label className="text-sm text-slate-400">Full features (title + subtitle)</label>
       <div className="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs text-slate-500 px-1">
-        <span>כותרת</span><span>תיאור</span><span />
+        <span>תיאור</span><span>כותרת</span><span />
       </div>
       <div className="flex flex-col gap-2">
         {rows.map((row, i) => (
           <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
-            <input value={row.title} onChange={e => update(i, 'title', e.target.value)} className={inp} placeholder="כותרת הפיצ'ר" />
-            <input value={row.subtitle} onChange={e => update(i, 'subtitle', e.target.value)} className={inp} placeholder="תיאור קצר (אופציונלי)" />
+            <input value={row.subtitle} onChange={e => update(i, 'subtitle', e.target.value)} className={inp + " text-right"} placeholder="תיאור קצר (אופציונלי)" dir="rtl" />
+            <input value={row.title} onChange={e => update(i, 'title', e.target.value)} className={inp + " text-right"} placeholder="כותרת הפיצ'ר" dir="rtl" />
             <button type="button" onClick={() => remove(i)} className="text-slate-500 hover:text-red-400 text-lg leading-none px-1">×</button>
           </div>
         ))}
