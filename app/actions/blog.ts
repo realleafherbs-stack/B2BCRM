@@ -75,6 +75,40 @@ export async function saveBlog(formData: FormData) {
   redirect(`/sites/${siteId}/blogs/${blogId}`)
 }
 
+export async function saveBlogFromGenerator(data: {
+  siteId: string
+  title: string
+  slug: string
+  body: string
+  tags: string[]
+  metaTitle?: string
+  metaDescription?: string
+}) {
+  const session = await auth()
+  if (!session) return { error: 'Unauthorized' }
+
+  try {
+    const blog = await prisma.blogPost.create({
+      data: {
+        siteId: data.siteId,
+        title: data.title,
+        slug: data.slug || `post-${Date.now()}`,
+        body: data.body,
+        status: 'DRAFT',
+        tags: data.tags ?? [],
+        metaTitle: data.metaTitle || null,
+        metaDescription: data.metaDescription || null,
+      },
+    })
+    revalidatePath(`/sites/${data.siteId}/blogs`)
+    return { blogId: blog.id, siteId: data.siteId }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    if (msg.includes('Unique constraint')) return { error: 'כתובת URL כבר קיימת — שנה את ה-Slug' }
+    return { error: msg }
+  }
+}
+
 export async function deleteBlog(blogId: string, siteId: string) {
   const session = await auth()
   if (!session) throw new Error('Unauthorized')
