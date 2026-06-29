@@ -153,7 +153,7 @@ function ProductRow({
           <Field label="Description" name="description" defaultValue={product.description ?? ''} />
           <Field label="Payper SKU / makat (optional)" name="payperSku" defaultValue={product.payperSku ?? ''} />
           <Field label="Card features (comma-separated)" name="cardFeatures" defaultValue={product.cardFeatures.join(', ')} />
-          <Field label="Full features (comma-separated)" name="features" defaultValue={product.features.join(', ')} />
+          <FullFeaturesEditor name="features" defaultValue={product.features.join(',')} />
           <ImageUpload name="image" label="Main product image" defaultValue={product.image ?? ''} siteSlug={siteSlug} />
           <MultiImageUpload name="images" label="Additional images (gallery)" defaultValues={product.images} siteSlug={siteSlug} />
           <div className="border-t border-slate-800 pt-4">
@@ -277,6 +277,43 @@ function ListEditor({ label, name, defaultValue }: { label: string; name: string
         ))}
       </div>
       <button type="button" onClick={add} className="self-start text-sm text-indigo-400 hover:text-indigo-300 mt-1">+ הוסף שורה</button>
+    </div>
+  )
+}
+
+function FullFeaturesEditor({ name, defaultValue }: { name: string; defaultValue: string }) {
+  const parse = (raw: string) => raw
+    ? raw.split(',').map(s => s.trim()).filter(Boolean).map(s => {
+        const [title = '', subtitle = ''] = s.split('::')
+        return { title: title.trim(), subtitle: subtitle.trim() }
+      })
+    : [{ title: '', subtitle: '' }]
+
+  const [rows, setRows] = useState(() => parse(defaultValue))
+  const serialized = rows.filter(r => r.title).map(r => r.subtitle ? `${r.title}::${r.subtitle}` : r.title).join(',')
+  const add = () => setRows(prev => [...prev, { title: '', subtitle: '' }])
+  const remove = (i: number) => setRows(prev => prev.filter((_, idx) => idx !== i))
+  const update = (i: number, key: 'title' | 'subtitle', val: string) =>
+    setRows(prev => prev.map((r, idx) => idx === i ? { ...r, [key]: val } : r))
+  const inp = "bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+
+  return (
+    <div className="flex flex-col gap-2">
+      <input type="hidden" name={name} value={serialized} />
+      <label className="text-sm text-slate-400">Full features (title + subtitle)</label>
+      <div className="grid grid-cols-[1fr_1fr_auto] gap-2 text-xs text-slate-500 px-1">
+        <span>כותרת</span><span>תיאור</span><span />
+      </div>
+      <div className="flex flex-col gap-2">
+        {rows.map((row, i) => (
+          <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+            <input value={row.title} onChange={e => update(i, 'title', e.target.value)} className={inp} placeholder="כותרת הפיצ'ר" />
+            <input value={row.subtitle} onChange={e => update(i, 'subtitle', e.target.value)} className={inp} placeholder="תיאור קצר (אופציונלי)" />
+            <button type="button" onClick={() => remove(i)} className="text-slate-500 hover:text-red-400 text-lg leading-none px-1">×</button>
+          </div>
+        ))}
+      </div>
+      <button type="button" onClick={add} className="self-start text-sm text-indigo-400 hover:text-indigo-300 mt-1">+ הוסף פיצ'ר</button>
     </div>
   )
 }
@@ -431,7 +468,7 @@ export function ProductsClient({
             <Field label="Description" name="description" defaultValue="" />
             <Field label="Payper SKU / makat (optional)" name="payperSku" defaultValue="" />
             <Field label="Card features (comma-separated)" name="cardFeatures" defaultValue="" />
-            <Field label="Full features (comma-separated)" name="features" defaultValue="" />
+            <FullFeaturesEditor name="features" defaultValue="" />
             <ImageUpload name="image" label="Product image" defaultValue="" siteSlug={siteSlug} />
             <div className="flex gap-3">
               <button type="submit" disabled={pending} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium disabled:opacity-50">
