@@ -331,14 +331,16 @@ function SpecsEditor({ name, defaultValue }: { name: string; defaultValue: strin
       <input type="hidden" name={name} value={serialized} />
       <label className="text-sm text-slate-400">מפרט טכני</label>
       <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-xs text-slate-500 px-1">
-        <span>שם שדה</span><span>ערך</span><span>קטגוריה</span><span />
+        <span>שם שדה</span><span>ערך</span><span>אייקון</span><span />
       </div>
       <div className="flex flex-col gap-2">
         {rows.map((row, i) => (
           <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
             <input value={row.a} onChange={e => update(i,'a',e.target.value)} className={inp} placeholder="שם שדה" />
             <input value={row.b} onChange={e => update(i,'b',e.target.value)} className={inp} placeholder="ערך" />
-            <input value={row.c} onChange={e => update(i,'c',e.target.value)} className={inp} placeholder="קטגוריה" />
+            <select value={row.c} onChange={e => update(i,'c',e.target.value)} className={inp}>
+              <option value="">-- בחר אייקון --</option>
+            </select>
             <button type="button" onClick={() => remove(i)} className="text-slate-500 hover:text-red-400 text-lg leading-none px-1">×</button>
           </div>
         ))}
