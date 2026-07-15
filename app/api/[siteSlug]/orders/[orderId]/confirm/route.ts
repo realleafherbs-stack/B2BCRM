@@ -21,7 +21,7 @@ async function sendOrderEmails(order: {
   total: number
   shipping: number
   items: unknown
-}) {
+}, siteName: string) {
   const items = order.items as Array<{ name: string; price: number; qty: number }>
   const adminEmail = process.env.SMTP_USER!
 
@@ -56,9 +56,9 @@ async function sendOrderEmails(order: {
 
   // Customer confirmation
   await transporter.sendMail({
-    from: `"XVape" <${adminEmail}>`,
+    from: `"${siteName}" <${adminEmail}>`,
     to: order.customerEmail,
-    subject: `אישור הזמנה #${order.id} — XVape`,
+    subject: `אישור הזמנה #${order.id} — ${siteName}`,
     html: `
       <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#222">
         <h2 style="color:#1a1a1a">תודה על הזמנתך, ${order.customerName.split(' ')[0]}!</h2>
@@ -69,14 +69,14 @@ async function sendOrderEmails(order: {
         <p style="font-size:13px;color:#777">כתובת למשלוח: ${order.customerAddress}</p>
         ${order.customerNote ? `<p style="font-size:13px;color:#777">הערות: ${order.customerNote}</p>` : ''}
         <p style="margin-top:24px">לכל שאלה ניתן לפנות אלינו בחזרה למייל זה.</p>
-        <p style="color:#1a1a1a;font-weight:bold">צוות XVape</p>
+        <p style="color:#1a1a1a;font-weight:bold">צוות ${siteName}</p>
       </div>
     `,
   })
 
   // Admin notification
   await transporter.sendMail({
-    from: `"XVape Orders" <${adminEmail}>`,
+    from: `"${siteName} Orders" <${adminEmail}>`,
     to: adminEmail,
     subject: `הזמנה חדשה #${order.id} — ₪${order.total.toFixed(2)}`,
     html: `
@@ -122,7 +122,7 @@ export async function POST(
 
   // Send confirmation emails (best-effort)
   try {
-    await sendOrderEmails(order)
+    await sendOrderEmails(order, site.name)
   } catch (err) {
     console.error('[confirm] Email failed:', err)
   }
