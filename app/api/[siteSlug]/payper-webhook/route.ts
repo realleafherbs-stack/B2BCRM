@@ -28,9 +28,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sit
 
   if (!product_sku) return NextResponse.json({ error: 'Missing product_sku' }, { status: 400 })
 
-  // Filter by allowed categories (if configured)
-  const allowedCategories = site.payperCategories ?? []
-  if (allowedCategories.length > 0 && !allowedCategories.includes(category_name)) {
+  // Filter by allowed categories (if configured). Compare trimmed — a stray space
+  // on either side would otherwise silently skip every product.
+  const allowedCategories = (site.payperCategories ?? []).map(c => c.trim())
+  if (allowedCategories.length > 0 && !allowedCategories.includes(String(category_name ?? '').trim())) {
     return NextResponse.json({ skipped: true, reason: 'category not allowed' })
   }
 

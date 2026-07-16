@@ -13,7 +13,7 @@ export async function POST(
   if (site.apiKey !== apiKey) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { id, total, shipping, customer, items, coupon } = body
+  const { id, total, shipping, discount, customer, items, coupon } = body
 
   if (!id || !total || !customer?.email || !items?.length) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -30,6 +30,7 @@ export async function POST(
       siteId: site.id,
       total,
       shipping: shipping ?? 0,
+      discount: discount ?? 0,
       customerName: `${customer.firstName ?? ''} ${customer.lastName ?? ''}`.trim(),
       customerEmail: customer.email,
       customerPhone: customer.phone ?? '',

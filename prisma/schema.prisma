@@ -74,6 +74,8 @@ model Site {
   revalidateUrl        String?
   payperWebhookSecret  String?
   payperCategories     String[]          @default([])
+  payperApiKey         String?
+  payperAccount        String?
   createdAt            DateTime          @default(now())
   blogs                BlogPost[]
   textFields           TextField[]
@@ -107,6 +109,7 @@ model Order {
   status          String   @default("pending")
   total           Float
   shipping        Float    @default(0)
+  discount        Float    @default(0)
   customerName    String
   customerEmail   String
   customerPhone   String
