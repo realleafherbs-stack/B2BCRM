@@ -42,3 +42,11 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# docs and tests are kept local, never committed
+*.md
+__tests__/
+*.test.ts
+*.test.tsx
+vitest.config.ts
+vitest.setup.ts
