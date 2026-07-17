@@ -5,6 +5,12 @@ import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 import { authConfig } from './auth.config'
 
+// Emails are stored lowercase. Postgres compares text case-sensitively, so every
+// lookup and every write must go through this or logins silently fail to match.
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
+
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12)
 }
@@ -27,7 +33,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email: normalizeEmail(credentials.email as string) },
         })
         if (!user || !user.password) return null
         const valid = await verifyPassword(credentials.password as string, user.password)

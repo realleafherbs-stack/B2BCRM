@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendPasswordResetEmail } from '@/lib/mailer'
+import { normalizeEmail } from '@/lib/auth'
 import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
-  const { email } = await req.json()
-  if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+  const { email: rawEmail } = await req.json()
+  if (!rawEmail) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+  const email = normalizeEmail(rawEmail)
 
   const user = await prisma.user.findUnique({ where: { email } })
   // Always return success to avoid leaking which emails exist

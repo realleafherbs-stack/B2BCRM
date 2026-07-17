@@ -1,13 +1,13 @@
 'use server'
 import { prisma } from '@/lib/prisma'
-import { auth, hashPassword, verifyPassword } from '@/lib/auth'
+import { auth, hashPassword, verifyPassword, normalizeEmail } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 
 export async function updateEmail(formData: FormData): Promise<{ error?: string; success?: string }> {
   const session = await auth()
   if (!session?.user?.id) return { error: 'Unauthorized' }
 
-  const email = (formData.get('email') as string)?.trim().toLowerCase()
+  const email = normalizeEmail((formData.get('email') as string) ?? '')
   if (!email) return { error: 'Email is required' }
 
   const existing = await prisma.user.findUnique({ where: { email } })

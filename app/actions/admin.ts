@@ -1,7 +1,7 @@
 'use server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
-import { hashPassword } from '@/lib/auth'
+import { hashPassword, normalizeEmail } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'crypto'
@@ -53,14 +53,28 @@ export async function deleteTextField(fieldId: string, siteId: string) {
   revalidatePath(`/admin/sites/${siteId}`)
 }
 
-export async function createUser(formData: FormData) {
+export async function createUser(formData: FormData): Promise<{ error?: string; success?: string }> {
   await requireAdmin()
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const role = formData.get('role') as 'ADMIN' | 'EDITOR'
+  const email = normalizeEmail((formData.get('email') as string) ?? '')
+  const password = (formData.get('password') as string) ?? ''
+  const role = formData.get('role') === 'ADMIN' ? 'ADMIN' : 'EDITOR'
+
+  if (!email) return { error: 'Email is required' }
+  if (password.length < 8) return { error: 'Password must be at least 8 characters' }
+
+  const existing = await prisma.user.findUnique({ where: { email } })
+  if (existing) return { error: 'That email is already in use' }
+
   const hashed = await hashPassword(password)
-  await prisma.user.create({ data: { email, password: hashed, role } })
+  try {
+    await prisma.user.create({ data: { email, password: hashed, role } })
+  } catch (e) {
+    // unique violation — someone created the same email between the check and here
+    if ((e as { code?: string }).code === 'P2002') return { error: 'That email is already in use' }
+    throw e
+  }
   revalidatePath('/admin/users')
+  return { success: `User ${email} created` }
 }
 
 export async function deleteUser(userId: string) {
