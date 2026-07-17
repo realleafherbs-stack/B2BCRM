@@ -18,11 +18,9 @@ export async function POST(req: NextRequest) {
 
   await prisma.passwordReset.create({ data: { email, token, expires } })
 
-  const baseUrl = process.env.CRM_URL ?? (process.env.NODE_ENV === 'production' ? null : 'http://localhost:3000')
-  if (!baseUrl) {
-    console.error('[forgot-password] CRM_URL is not set; refusing to send a reset link')
-    return NextResponse.json({ ok: true })
-  }
+  const baseUrl =
+    process.env.CRM_URL ||
+    (process.env.NODE_ENV === 'production' ? 'https://www.ducks.co.il' : 'http://localhost:3000')
 
   await sendPasswordResetEmail(email, token, baseUrl)
 
