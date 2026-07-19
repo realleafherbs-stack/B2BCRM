@@ -1,9 +1,11 @@
 'use client'
 import { useState, useTransition } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createCategory, updateCategory, deleteCategory } from '@/app/actions/categories'
 
 type Category = { id: string; name: string; slug: string; active: boolean; order: number; _count?: { products: number } }
+type CategoryProduct = { id: string; name: string; price: number; image: string | null; active: boolean; categoryId: string | null; categoryOrder: number }
 
 function Field({ label, name, defaultValue }: { label: string; name: string; defaultValue: string }) {
   return (
@@ -14,8 +16,44 @@ function Field({ label, name, defaultValue }: { label: string; name: string; def
   )
 }
 
-function CategoryRow({ cat, siteId }: { cat: Category; siteId: string }) {
+function CategoryProductPanel({ products }: { products: CategoryProduct[] }) {
+  if (products.length === 0) {
+    return (
+      <div className="mt-3 rounded-lg border border-slate-800 bg-slate-950 p-6 text-center text-slate-500 text-sm">
+        No products in this category yet.
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-3 flex flex-col gap-2">
+      {products.map((p) => (
+        <div
+          key={p.id}
+          className={`flex items-center gap-3 rounded-lg border p-3 ${p.active ? 'border-slate-800 bg-slate-950' : 'border-slate-800 bg-slate-950 opacity-60'}`}
+        >
+          <div className="text-slate-600 px-1 text-lg select-none">⠿</div>
+          {p.image ? (
+            <Image src={p.image} alt={p.name} width={40} height={40} className="w-10 h-10 rounded-lg object-contain bg-slate-800 shrink-0" unoptimized />
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-slate-800 shrink-0 flex items-center justify-center text-slate-600 text-[10px]">No img</div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-white text-sm font-medium">{p.name}</span>
+              {!p.active && <span className="px-2 py-0.5 rounded-full text-xs bg-slate-800 text-slate-500">inactive</span>}
+            </div>
+            <span className="text-slate-400 text-xs">₪{p.price}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function CategoryRow({ cat, siteId, products }: { cat: Category; siteId: string; products: CategoryProduct[] }) {
   const [editing, setEditing] = useState(false)
+  const [expanded, setExpanded] = useState(false)
   const [pending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -55,34 +93,42 @@ function CategoryRow({ cat, siteId }: { cat: Category; siteId: string }) {
   }
 
   return (
-    <div className={`rounded-xl border p-4 flex items-center gap-4 ${cat.active ? 'border-slate-800 bg-slate-900' : 'border-slate-800 bg-slate-950 opacity-60'}`}>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-white font-semibold">{cat.name}</span>
-          {!cat.active && <span className="px-2 py-0.5 rounded-full text-xs bg-slate-800 text-slate-500">inactive</span>}
+    <div className={`rounded-xl border p-4 ${cat.active ? 'border-slate-800 bg-slate-900' : 'border-slate-800 bg-slate-950 opacity-60'}`}>
+      <div className="flex items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-white font-semibold">{cat.name}</span>
+            {!cat.active && <span className="px-2 py-0.5 rounded-full text-xs bg-slate-800 text-slate-500">inactive</span>}
+          </div>
+          <div className="flex gap-4 text-sm text-slate-400 mt-0.5">
+            <span>/{cat.slug}</span>
+          </div>
         </div>
-        <div className="flex gap-4 text-sm text-slate-400 mt-0.5">
-          <span>/{cat.slug}</span>
-          {cat._count !== undefined && <span>{cat._count.products} products</span>}
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 transition-colors"
+          >
+            {expanded ? 'Hide' : 'Products'} ({products.length})
+          </button>
+          <button onClick={() => setEditing(true)} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 transition-colors">
+            Edit
+          </button>
+          <button
+            onClick={() => { if (confirm(`Delete category "${cat.name}"? Products will be uncategorized.`)) startTransition(() => deleteCategory(cat.id, siteId)) }}
+            disabled={pending}
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-red-900 text-red-400 hover:bg-red-950 transition-colors disabled:opacity-50"
+          >
+            Delete
+          </button>
         </div>
       </div>
-      <div className="flex gap-2 shrink-0">
-        <button onClick={() => setEditing(true)} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 transition-colors">
-          Edit
-        </button>
-        <button
-          onClick={() => { if (confirm(`Delete category "${cat.name}"? Products will be uncategorized.`)) startTransition(() => deleteCategory(cat.id, siteId)) }}
-          disabled={pending}
-          className="px-4 py-2 rounded-lg text-sm font-medium border border-red-900 text-red-400 hover:bg-red-950 transition-colors disabled:opacity-50"
-        >
-          Delete
-        </button>
-      </div>
+      {expanded && <CategoryProductPanel products={products} />}
     </div>
   )
 }
 
-export function CategoriesClient({ categories, siteId, siteName }: { categories: Category[]; siteId: string; siteName: string }) {
+export function CategoriesClient({ categories, products, siteId, siteName }: { categories: Category[]; products: CategoryProduct[]; siteId: string; siteName: string }) {
   const [creating, setCreating] = useState(false)
   const [pending, startTransition] = useTransition()
 
@@ -127,7 +173,9 @@ export function CategoriesClient({ categories, siteId, siteName }: { categories:
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {categories.map((cat) => <CategoryRow key={cat.id} cat={cat} siteId={siteId} />)}
+          {categories.map((cat) => (
+            <CategoryRow key={cat.id} cat={cat} siteId={siteId} products={products.filter((p) => p.categoryId === cat.id)} />
+          ))}
         </div>
       )}
     </div>
