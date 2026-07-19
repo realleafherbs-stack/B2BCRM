@@ -43,3 +43,12 @@ export async function deleteCategory(id: string, siteId: string) {
   revalidatePath(`/sites/${siteId}/categories`)
   revalidatePath(`/sites/${siteId}/products`)
 }
+
+export async function reorderCategoryProducts(siteId: string, categoryId: string, orderedProductIds: string[]) {
+  const session = await auth()
+  if (!session) throw new Error('Unauthorized')
+  await Promise.all(orderedProductIds.map((id, index) =>
+    prisma.product.update({ where: { id }, data: { categoryOrder: index } })
+  ))
+  revalidatePath(`/sites/${siteId}/categories`)
+}
