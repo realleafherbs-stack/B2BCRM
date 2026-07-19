@@ -1,8 +1,8 @@
 'use client'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { createCategory, updateCategory, deleteCategory } from '@/app/actions/categories'
+import { createCategory, updateCategory, deleteCategory, reorderCategoryProducts } from '@/app/actions/categories'
 
 type Category = { id: string; name: string; slug: string; active: boolean; order: number; _count?: { products: number } }
 type CategoryProduct = { id: string; name: string; price: number; image: string | null; active: boolean; categoryId: string | null; categoryOrder: number }
@@ -16,8 +16,12 @@ function Field({ label, name, defaultValue }: { label: string; name: string; def
   )
 }
 
-function CategoryProductPanel({ products }: { products: CategoryProduct[] }) {
-  if (products.length === 0) {
+function CategoryProductPanel({ products, siteId, categoryId }: { products: CategoryProduct[]; siteId: string; categoryId: string }) {
+  const [items, setItems] = useState(products)
+  const [, startTransition] = useTransition()
+  const dragIndex = useRef<number | null>(null)
+
+  if (items.length === 0) {
     return (
       <div className="mt-3 rounded-lg border border-slate-800 bg-slate-950 p-6 text-center text-slate-500 text-sm">
         No products in this category yet.
@@ -27,12 +31,25 @@ function CategoryProductPanel({ products }: { products: CategoryProduct[] }) {
 
   return (
     <div className="mt-3 flex flex-col gap-2">
-      {products.map((p) => (
+      {items.map((p, i) => (
         <div
           key={p.id}
+          draggable
+          onDragStart={() => { dragIndex.current = i }}
+          onDragOver={(e) => { e.preventDefault() }}
+          onDrop={() => {
+            const from = dragIndex.current
+            if (from === null || from === i) return
+            const next = [...items]
+            const [moved] = next.splice(from, 1)
+            next.splice(i, 0, moved)
+            setItems(next)
+            dragIndex.current = null
+            startTransition(() => reorderCategoryProducts(siteId, categoryId, next.map((x) => x.id)))
+          }}
           className={`flex items-center gap-3 rounded-lg border p-3 ${p.active ? 'border-slate-800 bg-slate-950' : 'border-slate-800 bg-slate-950 opacity-60'}`}
         >
-          <div className="text-slate-600 px-1 text-lg select-none">⠿</div>
+          <div className="text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing px-1 text-lg select-none">⠿</div>
           {p.image ? (
             <Image src={p.image} alt={p.name} width={40} height={40} className="w-10 h-10 rounded-lg object-contain bg-slate-800 shrink-0" unoptimized />
           ) : (
@@ -123,7 +140,7 @@ function CategoryRow({ cat, siteId, products }: { cat: Category; siteId: string;
           </button>
         </div>
       </div>
-      {expanded && <CategoryProductPanel products={products} />}
+      {expanded && <CategoryProductPanel products={products} siteId={siteId} categoryId={cat.id} />}
     </div>
   )
 }
