@@ -47,6 +47,14 @@ export async function deleteCategory(id: string, siteId: string) {
 export async function reorderCategoryProducts(siteId: string, categoryId: string, orderedProductIds: string[]) {
   const session = await auth()
   if (!session) throw new Error('Unauthorized')
+
+  // Every ID must actually belong to this site's category — otherwise a caller
+  // could pass IDs from a different tenant and corrupt their categoryOrder.
+  const owned = await prisma.product.count({
+    where: { id: { in: orderedProductIds }, siteId, categoryId },
+  })
+  if (owned !== orderedProductIds.length) throw new Error('Invalid product IDs for this category')
+
   await Promise.all(orderedProductIds.map((id, index) =>
     prisma.product.update({ where: { id }, data: { categoryOrder: index } })
   ))
