@@ -23,7 +23,9 @@ function LoginForm() {
       })
       if (result === undefined || result === null) {
         setError('Something went wrong. Please try again.')
-      } else if (!result.ok) {
+      } else if (result.error) {
+        // NextAuth's credentials callback responds 200 even on failure — the
+        // real outcome is in `error`, not `ok` (`ok` just reflects the HTTP status).
         setError('Invalid email or password')
       } else {
         router.push('/dashboard')
