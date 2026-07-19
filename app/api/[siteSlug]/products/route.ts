@@ -29,6 +29,7 @@ export async function GET(
       ogImage: true,
       images: true,
       categoryId: true,
+      categoryOrder: true,
       category: { select: { id: true, name: true, slug: true } },
       videoUrl: true,
       soldCount: true,
