@@ -2,6 +2,7 @@
 import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { PasswordInput } from '@/components/PasswordInput'
 
 function ResetForm() {
   const searchParams = useSearchParams()
@@ -43,8 +44,7 @@ function ResetForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-6">
       <div>
         <label className="block text-sm text-slate-400 mb-2 uppercase tracking-wide">New Password</label>
-        <input
-          type="password"
+        <PasswordInput
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}

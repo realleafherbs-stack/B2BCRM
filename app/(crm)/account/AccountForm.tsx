@@ -1,6 +1,7 @@
 'use client'
 import { useActionState } from 'react'
 import { updateEmail, updatePassword } from '@/app/actions/account'
+import { PasswordInput } from '@/components/PasswordInput'
 
 type State = { error?: string; success?: string }
 const initial: State = {}
@@ -50,18 +51,16 @@ export function AccountForm({ currentEmail, role }: { currentEmail: string; role
         <h2 className="text-white text-lg font-semibold">Password</h2>
         <div>
           <label className="block text-sm text-slate-400 mb-2 uppercase tracking-wide">Current password</label>
-          <input
+          <PasswordInput
             name="currentPassword"
-            type="password"
             required
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:border-indigo-500"
           />
         </div>
         <div>
           <label className="block text-sm text-slate-400 mb-2 uppercase tracking-wide">New password</label>
-          <input
+          <PasswordInput
             name="newPassword"
-            type="password"
             required
             minLength={8}
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:border-indigo-500"

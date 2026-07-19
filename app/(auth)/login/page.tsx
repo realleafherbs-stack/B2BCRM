@@ -2,6 +2,7 @@
 import { signIn } from 'next-auth/react'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { PasswordInput } from '@/components/PasswordInput'
 
 function LoginForm() {
   const router = useRouter()
@@ -51,9 +52,8 @@ function LoginForm() {
         </div>
         <div>
           <label className="block text-sm text-slate-400 mb-2 uppercase tracking-wide">Password</label>
-          <input
+          <PasswordInput
             name="password"
-            type="password"
             required
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:border-indigo-500"
           />

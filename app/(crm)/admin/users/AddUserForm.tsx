@@ -1,6 +1,7 @@
 'use client'
 import { useActionState } from 'react'
 import { createUser } from '@/app/actions/admin'
+import { PasswordInput } from '@/components/PasswordInput'
 
 type State = { error?: string; success?: string }
 const initial: State = {}
@@ -27,9 +28,8 @@ export function AddUserForm() {
         </div>
         <div>
           <label className="block text-sm text-slate-400 mb-2 uppercase tracking-wide">Password</label>
-          <input
+          <PasswordInput
             name="password"
-            type="password"
             required
             minLength={8}
             className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:border-indigo-500"
