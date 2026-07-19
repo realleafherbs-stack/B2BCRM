@@ -29,6 +29,15 @@ function CategoryProductPanel({ products, siteId, categoryId }: { products: Cate
     )
   }
 
+  function moveTo(from: number, to: number) {
+    if (from === to) return
+    const next = [...items]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved)
+    setItems(next)
+    startTransition(() => reorderCategoryProducts(siteId, categoryId, next.map((x) => x.id)))
+  }
+
   return (
     <div className="mt-3 flex flex-col gap-2">
       {items.map((p, i) => (
@@ -39,17 +48,28 @@ function CategoryProductPanel({ products, siteId, categoryId }: { products: Cate
           onDragOver={(e) => { e.preventDefault() }}
           onDrop={() => {
             const from = dragIndex.current
-            if (from === null || from === i) return
-            const next = [...items]
-            const [moved] = next.splice(from, 1)
-            next.splice(i, 0, moved)
-            setItems(next)
             dragIndex.current = null
-            startTransition(() => reorderCategoryProducts(siteId, categoryId, next.map((x) => x.id)))
+            if (from === null) return
+            moveTo(from, i)
           }}
           className={`flex items-center gap-3 rounded-lg border p-3 ${p.active ? 'border-slate-800 bg-slate-950' : 'border-slate-800 bg-slate-950 opacity-60'}`}
         >
           <div className="text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing px-1 text-lg select-none">⠿</div>
+          <input
+            key={i}
+            type="number"
+            min={1}
+            max={items.length}
+            defaultValue={i + 1}
+            onBlur={(e) => {
+              const raw = parseInt(e.target.value, 10)
+              const clamped = Number.isFinite(raw) ? Math.min(Math.max(raw, 1), items.length) : i + 1
+              e.target.value = String(clamped)
+              moveTo(i, clamped - 1)
+            }}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+            className="w-12 shrink-0 bg-slate-800 border border-slate-700 rounded-md px-1.5 py-1 text-white text-xs text-center focus:outline-none focus:border-indigo-500"
+          />
           {p.image ? (
             <Image src={p.image} alt={p.name} width={40} height={40} className="w-10 h-10 rounded-lg object-contain bg-slate-800 shrink-0" unoptimized />
           ) : (
