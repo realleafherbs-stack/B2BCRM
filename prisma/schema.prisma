@@ -76,6 +76,7 @@ model Site {
   payperCategories     String[]          @default([])
   payperApiKey         String?
   payperAccount        String?
+  lastPayperWebhookPayload Json?
   createdAt            DateTime          @default(now())
   blogs                BlogPost[]
   textFields           TextField[]

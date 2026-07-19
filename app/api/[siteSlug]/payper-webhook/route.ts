@@ -19,6 +19,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sit
   const body = await req.json()
   const { identifier: _redacted, ...loggableBody } = body
   console.log('[payper-webhook] payload:', JSON.stringify(loggableBody))
+  // TEMPORARY: capturing a real payload to inspect gallery image fields — remove after.
+  await prisma.site.update({ where: { id: site.id }, data: { lastPayperWebhookPayload: loggableBody } })
+    .catch((e) => console.error('[payper-webhook] failed to capture debug payload:', e))
   const { identifier, product_sku, product_name, price, cost, total_available_quantity, category_name, image_url, is_active } = body
 
   // Validate identifier
