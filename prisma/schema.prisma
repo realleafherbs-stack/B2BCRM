@@ -158,6 +158,7 @@ model Product {
   features        String[]  @default([])
   active          Boolean   @default(true)
   order           Int       @default(0)
+  categoryOrder   Int       @default(0)
   metaTitle         String?
   metaDescription   String?
   ogImage           String?
