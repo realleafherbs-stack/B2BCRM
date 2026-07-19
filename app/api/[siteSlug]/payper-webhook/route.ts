@@ -42,11 +42,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sit
   const existing = await prisma.product.findFirst({ where: { siteId: site.id, payperSku: product_sku } })
 
   if (existing) {
+    // name/price are CRM-owned once a product exists — an admin's edits must
+    // survive future Payper pushes. Only availability and image stay Payper-driven.
     await prisma.product.update({
       where: { id: existing.id },
       data: {
-        ...(product_name && { name: product_name }),
-        ...(price != null && { price: parseFloat(price) }),
         ...(image_url && { image: image_url }),
         active: is_active === true || is_active === '1' || is_active === 'true',
       },
