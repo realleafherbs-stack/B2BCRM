@@ -2,15 +2,6 @@
 import { useState, useTransition } from 'react'
 import { updateOrderStatus, updateOrderNote } from '@/app/actions/orders'
 
-const STATUS_OPTIONS = ['pending', 'paid', 'shipped', 'cancelled']
-
-const STATUS_STYLES: Record<string, string> = {
-  pending:   'bg-yellow-900/30 text-yellow-300 border border-yellow-700',
-  paid:      'bg-green-900/30 text-green-300 border border-green-700',
-  shipped:   'bg-blue-900/30 text-blue-300 border border-blue-700',
-  cancelled: 'bg-red-900/30 text-red-300 border border-red-700',
-}
-
 type OrderItem = { name: string; price: number; qty: number }
 
 type Order = {
@@ -34,6 +25,9 @@ export function OrderRow({ order, siteId }: { order: Order; siteId: string }) {
   const [note, setNote] = useState(order.shippingNote ?? '')
   const [editingNote, setEditingNote] = useState(false)
 
+  const isPaid = order.status === 'paid'
+  const invoiced = Boolean(order.payperDocId)
+
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -44,15 +38,31 @@ export function OrderRow({ order, siteId }: { order: Order; siteId: string }) {
           {order.customerAddress && <span className="text-slate-500 text-xs">{order.customerAddress}</span>}
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <select
-            value={order.status}
-            disabled={pending}
-            onChange={(e) => startTransition(() => updateOrderStatus(order.id, siteId, e.target.value))}
-            className={`px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none ${STATUS_STYLES[order.status] ?? STATUS_STYLES.pending}`}
-            style={{ background: 'transparent' }}
-          >
-            {STATUS_OPTIONS.map(s => <option key={s} value={s} className="bg-slate-900 text-white">{s}</option>)}
-          </select>
+          {isPaid ? (
+            invoiced ? (
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-300 border border-green-700">
+                Invoiced ✓
+              </span>
+            ) : (
+              <button
+                onClick={() => startTransition(() => updateOrderStatus(order.id, siteId, 'paid'))}
+                disabled={pending}
+                className="px-3 py-1 rounded-full text-xs font-medium bg-amber-900/30 text-amber-300 border border-amber-700 hover:bg-amber-900/50 disabled:opacity-50"
+                title="Not sent to Payper yet — click to send the invoice"
+              >
+                {pending ? 'Sending…' : 'Send invoice'}
+              </button>
+            )
+          ) : (
+            <button
+              onClick={() => startTransition(() => updateOrderStatus(order.id, siteId, 'paid'))}
+              disabled={pending}
+              className="px-3 py-1 rounded-full text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
+              title="Mark this order paid and send the Payper invoice"
+            >
+              {pending ? 'Confirming…' : 'Confirm & invoice'}
+            </button>
+          )}
           <span className="text-white font-bold text-lg">₪{order.total.toFixed(2)}</span>
         </div>
       </div>
