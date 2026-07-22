@@ -25,7 +25,6 @@ export function OrderRow({ order, siteId }: { order: Order; siteId: string }) {
   const [note, setNote] = useState(order.shippingNote ?? '')
   const [editingNote, setEditingNote] = useState(false)
 
-  const isPaid = order.status === 'paid'
   const invoiced = Boolean(order.payperDocId)
 
   return (
@@ -38,29 +37,18 @@ export function OrderRow({ order, siteId }: { order: Order; siteId: string }) {
           {order.customerAddress && <span className="text-slate-500 text-xs">{order.customerAddress}</span>}
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          {isPaid ? (
-            invoiced ? (
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-300 border border-green-700">
-                Invoiced ✓
-              </span>
-            ) : (
-              <button
-                onClick={() => startTransition(() => updateOrderStatus(order.id, siteId, 'paid'))}
-                disabled={pending}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-amber-900/30 text-amber-300 border border-amber-700 hover:bg-amber-900/50 disabled:opacity-50"
-                title="Not sent to Payper yet — click to send the invoice"
-              >
-                {pending ? 'Sending…' : 'Send invoice'}
-              </button>
-            )
+          {invoiced ? (
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-300 border border-green-700">
+              Invoiced ✓
+            </span>
           ) : (
             <button
               onClick={() => startTransition(() => updateOrderStatus(order.id, siteId, 'paid'))}
               disabled={pending}
-              className="px-3 py-1 rounded-full text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
-              title="Mark this order paid and send the Payper invoice"
+              className="px-3 py-1 rounded-full text-xs font-medium bg-amber-900/30 text-amber-300 border border-amber-700 hover:bg-amber-900/50 disabled:opacity-50"
+              title="Not sent to Payper yet — click to send the invoice"
             >
-              {pending ? 'Confirming…' : 'Confirm & invoice'}
+              {pending ? 'Sending…' : 'Send invoice'}
             </button>
           )}
           <span className="text-white font-bold text-lg">₪{order.total.toFixed(2)}</span>
